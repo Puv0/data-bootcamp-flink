@@ -35,7 +35,7 @@ object LikelihoodToPurchaseCalculator  {
       .filter(e => List(AddToBasket, DisplayBasket, AddToFavorites, RemoveFromBasket, RemoveFromFavorites).contains(e.eventType))
       // Some event wasn't involved which has no effect on purchaselikelihood
       .keyBy(x => (x.userId,x.productId))
-      //KeyBy userdID and productId this way i can calculate the number of event relativeley this user and the product which user has interest.
+      //Grouped userdID and productId this way i can calculate the number of event relativeley this user and the product which user has interest.
 
     keyedStream
       .window(TumblingProcessingTimeWindows.of(Time.milliseconds(20000))) //20 second timewindow, with keyby and window, user and product grouped and ready to calculate purchaselikelihood
@@ -48,7 +48,7 @@ object LikelihoodToPurchaseCalculator  {
 
           //Process function takes key(userId,ProductId), Iterable element(Events) and collection for output Purchaselikelihood.
           // We need to return Purchaselikelihood object which has three attritubte, userId,productId and likelihood.
-          //Likelihood is calculating by fold function. Each event has different coefficient, foldLeft aggregate all events likelihood and return final double output
+          //Likelihood is calculated by fold function. Each event has different coefficient, foldLeft aggregate likelihood based on an event and return final double output
           val likelihood = elements.foldLeft(0D) { (acc, elem) =>
             (acc + l2pCoefficients.get(elem.eventType).getOrElse(0D))
 
